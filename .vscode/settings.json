@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "/Users/Esh/anaconda3/envs/collab_filter/bin/python",
+    "python.defaultInterpreterPath": "/Users/Esh/anaconda3/envs/collab_filter/bin/python",
     "python.terminal.activateEnvironment": true,
     "editor.formatOnSave": true,
     "python.analysis.extraPaths": [
