@@ -151,7 +151,6 @@ def prepare_df_for_plotting(
             .reset_index()
             .rename(columns={col_name: "score"})
         )
-
     # Handle potentionally multiple dilations
     if dilation is not None:
         out = out.query("dilation == @dilation").reset_index(drop=True)
@@ -171,6 +170,7 @@ def prepare_df_for_plotting(
     )
     model_rename_map = {
         "Mean": "Mean",
+        "MICE": "MICE",
         "KNN": "KNN (k=10)",
         "NNMF_M": "NNMF (mult)",
         "NNMF_S": "NNMF (sgd)",
@@ -208,6 +208,7 @@ def plot_overall_results(
     data,
     filter_data=True,
     hide_nmf_m=False,
+    show_nmf_dil=False,
     save=False,
     ax=None,
     **kwargs,
@@ -235,15 +236,36 @@ def plot_overall_results(
     else:
         df = data
 
+    if show_nmf_dil:
+        algos = ["KNN (k=10)", "MICE", "Mean", "NNMF (sgd)", "NNMF (sgd)_5"]
+        df = df.query("algorithm in @algos and n_factors == 'all'").reset_index(
+            drop=True
+        )
+        df["algorithm"] = df.algorithm.map(
+            {
+                "KNN (k=10)": "KNN (k=10)",
+                "MICE": "MICE",
+                "Mean": "Mean",
+                "NNMF (sgd)": "NNMF (sgd)",
+                "NNMF (sgd)_5": "NNMF (sgd 5s)",
+            }
+        )
+
     if hide_nmf_m:
         df = df.query("algorithm != 'NNMF (mult)'").reset_index(drop=True)
-        hue_order = ["Mean", "KNN (k=10)", "NNMF (sgd)"]
+        hue_order = [
+            "Mean",
+            "KNN (k=10)",
+            "NNMF (sgd)",
+            "MICE",
+        ]
     else:
         hue_order = [
             "Mean",
             "KNN (k=10)",
             "NNMF (sgd)",
             "NNMF (mult)",
+            "MICE",
         ]
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=figsize)
@@ -275,7 +297,7 @@ def plot_overall_results(
     ax.legend(
         labels.values(),
         labels.keys(),
-        bbox_to_anchor=(1.01, 1),
+        bbox_to_anchor=(1.14, 1),
         borderaxespad=0,
         frameon=False,
     )
@@ -290,6 +312,7 @@ def plot_overall_results(
                 save.parent.mkdir()
         plt.savefig(f"{save}.pdf", bbox_inches="tight")
         plt.savefig(f"{save}.jpg", bbox_inches="tight")
+    return ax
 
 
 def plot_results(
@@ -335,19 +358,10 @@ def plot_results(
     if title is None:
         title = dataset_name.capitalize()
     if hide_nmf_m:
-        hue_order = [
-            "Mean",
-            "KNN (k=10)",
-            "NNMF (sgd)",
-        ]
+        hue_order = ["Mean", "KNN (k=10)", "NNMF (sgd)", "MICE"]
         df = df.query("algorithm != 'NNMF (mult)'").reset_index(drop=True)
     else:
-        hue_order = [
-            "Mean",
-            "KNN (k=10)",
-            "NNMF (sgd)",
-            "NNMF (mult)",
-        ]
+        hue_order = ["Mean", "KNN (k=10)", "NNMF (sgd)", "NNMF (mult)", "MICE"]
     order = ["10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%"]
 
     if dataset_name == "decisions":

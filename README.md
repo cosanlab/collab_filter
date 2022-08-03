@@ -6,7 +6,8 @@ This repository contains all the code, data, and analyses supporting the associa
 
 1. Run `preprocess_decisions.py` and `preprocess_moth.py`
 2. Run `fit_all_models.py` 3 times once for each dataset: `iaps`,`moth`, and`decisions`
-3. Examine analysis results in `Model_Comparisons.ipynb` notebook
+3. Run `fit_mice.py` to run MICE across all 3 datasets
+4. Examine analysis results in `Model_Comparisons.ipynb` notebook
 
 ## Data
 
